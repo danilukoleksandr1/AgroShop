@@ -1,0 +1,51 @@
+﻿@model AgroShop.Web.Models.Product
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="row mt-4">
+    <div class="col-md-5">
+        <img src="@Model.ImageUrl" class="img-fluid rounded" />
+    </div>
+
+    <div class="col-md-7">
+        <h2>@Model.Name</h2>
+        <p class="text-muted">@Model.Category?.Name</p>
+
+        <h3>@Model.Price грн</h3>
+
+        <form method="post" action="/Cart/Add/@Model.ProductID">
+            <button type="submit" class="btn btn-success btn-lg mt-3">
+                Додати в кошик
+            </button>
+        </form>
+
+        <hr />
+
+        <h4>Опис товару</h4>
+        <p>@Model.Description</p>
+    </div>
+</div>
+
+<hr />
+
+<h4>Відгуки</h4>
+
+@if (Model.Reviews != null && Model.Reviews.Any())
+{
+    foreach (var r in Model.Reviews)
+    {
+        <div class="card mb-3">
+            <div class="card-body">
+                <strong>@r.User?.Username</strong>
+                <span class="text-warning">★ @r.Rating</span>
+                <p>@r.Comment</p>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <p>Відгуків поки що немає.</p>
+}

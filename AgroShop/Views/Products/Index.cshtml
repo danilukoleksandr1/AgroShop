@@ -1,0 +1,75 @@
+﻿@model AgroShop.Web.Models.ViewModels.ProductFilterViewModel
+
+@{
+    ViewData["Title"] = "Каталог товарів";
+}
+
+<h2 class="mb-4">Каталог товарів</h2>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <form method="get" class="card card-body">
+            <h5>Фільтри</h5>
+
+            <label>Пошук:</label>
+            <input name="search" class="form-control" value="@Model.Search" />
+
+            <label class="mt-3">Категорія:</label>
+            <select name="categoryId" class="form-control">
+                <option value="">— Всі —</option>
+
+                @foreach (var c in Model.Categories)
+                {
+                    if (c.CategoryID == Model.CategoryID)
+                    {
+                        <option value="@c.CategoryID" selected>@c.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@c.CategoryID">@c.Name</option>
+                    }
+                }
+            </select>
+
+
+            <label class="mt-3">Ціна від:</label>
+            <input name="minPrice" type="number" class="form-control" value="@Model.MinPrice" />
+
+            <label class="mt-3">Ціна до:</label>
+            <input name="maxPrice" type="number" class="form-control" value="@Model.MaxPrice" />
+
+            <button type="submit" class="btn btn-success mt-3 w-100">
+                Застосувати
+            </button>
+        </form>
+    </div>
+
+    <div class="col-md-9">
+        <div class="row">
+            @foreach (var p in Model.Products)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="@p.ImageUrl" class="card-img-top" style="height:200px; object-fit:cover;" />
+
+                        <div class="card-body">
+                            <h5 class="card-title">@p.Name</h5>
+                            <p class="text-muted">@p.Category?.Name</p>
+                            <p><b>@p.Price грн</b></p>
+
+                            <a href="/Products/Details/@p.ProductID" class="btn btn-primary w-100">
+                                Переглянути
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (!Model.Products.Any())
+        {
+            <p class="text-muted mt-3">Товарів не знайдено...</p>
+        }
+    </div>
+</div>
+

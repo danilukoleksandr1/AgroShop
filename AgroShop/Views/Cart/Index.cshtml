@@ -1,0 +1,51 @@
+﻿@model List<AgroShop.Web.Models.CartItem>
+
+<h2>Кошик</h2>
+
+@if (!Model.Any())
+{
+    <p>Кошик порожній.</p>
+}
+else
+{
+    <table class="table table-bordered mt-4">
+        <thead>
+            <tr>
+                <th>Фото</th>
+                <th>Назва</th>
+                <th>Ціна</th>
+                <th>Кількість</th>
+                <th>Разом</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td><img src="@item.ImageUrl" width="70" /></td>
+                    <td>@item.Name</td>
+                    <td>@item.UnitPrice грн</td>
+
+                    <td>
+                        <form method="post" action="/Cart/Update">
+                            <input type="hidden" name="id" value="@item.ProductID" />
+                            <input type="number" name="qty" value="@item.Quantity" min="1" class="form-control" style="width:80px" />
+                            <button class="btn btn-sm btn-primary mt-1">Оновити</button>
+                        </form>
+                    </td>
+
+                    <td>@(item.UnitPrice* item.Quantity) грн</td>
+
+                    <td>
+                        <a href="/Cart/Remove/@item.ProductID" class="btn btn-danger btn-sm">Видалити</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h3>Сума: @Model.Sum(x => x.Quantity * x.UnitPrice) грн</h3>
+
+    <a href="/Cart/Checkout" class="btn btn-success btn-lg mt-3">Оформити замовлення</a>
+}

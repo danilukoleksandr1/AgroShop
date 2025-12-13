@@ -1,0 +1,48 @@
+﻿@model AgroShop.Web.ViewModels.CheckoutViewModel
+
+<h2>Оформлення замовлення</h2>
+
+<form asp-action="Checkout" method="post">
+
+    <h4>Отримувач</h4>
+    <input asp-for="LastName" class="form-control mb-2" placeholder="Прізвище" />
+    <input asp-for="FirstName" class="form-control mb-2" placeholder="Ім'я" />
+    <input asp-for="MiddleName" class="form-control mb-2" placeholder="По батькові" />
+
+    <h4>Контакти</h4>
+    <input asp-for="Phone" class="form-control mb-2" placeholder="Телефон" />
+    <input asp-for="Email" class="form-control mb-2" placeholder="Email" />
+
+    <h4>Адреса доставки</h4>
+    <select asp-for="AddressID" class="form-select mb-3">
+        @foreach (var a in Model.Addresses)
+        {
+            <option value="@a.AddressID">
+                @a.City, @a.Street @a.House
+            </option>
+        }
+    </select>
+
+    <h4>Спосіб оплати</h4>
+    <select asp-for="PaymentMethodID" class="form-select mb-3">
+        @foreach (var p in Model.PaymentMethods)
+        {
+            <option value="@p.PaymentMethodID">@p.Name</option>
+        }
+    </select>
+
+    <h4>Доставка</h4>
+    <select asp-for="ShippingMethodID" class="form-select mb-3">
+        @foreach (var s in Model.ShippingMethods)
+        {
+            <option value="@s.ShippingMethodID">
+                @s.Name (+@s.Cost грн)
+            </option>
+        }
+    </select>
+
+    <button type="submit" class="btn btn-success">
+        Підтвердити замовлення
+    </button>
+
+</form>
