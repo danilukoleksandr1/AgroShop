@@ -1,0 +1,47 @@
+﻿@model AgroShop.Web.ViewModels.ProfileViewModel
+
+<h2>Мій кабінет</h2>
+
+<p><b>Імʼя:</b> @Model.Username</p>
+<p><b>Email:</b> @Model.Email</p>
+
+<hr />
+
+<h3>Мої замовлення</h3>
+
+@if (!Model.Orders.Any())
+{
+    <p>У вас ще немає замовлень.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>№</th>
+                <th>Дата</th>
+                <th>Сума</th>
+                <th>Статус</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var o in Model.Orders)
+            {
+                <tr>
+                    <td>@o.OrderID</td>
+                    <td>@o.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@o.TotalAmount грн</td>
+                    <td>
+                        <span class="badge bg-info">
+                            @o.Status.StatusName
+                        </span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<a asp-action="Logout" class="btn btn-outline-danger mt-3">
+    Вийти
+</a>

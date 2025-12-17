@@ -1,0 +1,45 @@
+﻿@model AgroShop.Web.ViewModels.RegisterViewModel
+
+<h2>Реєстрація</h2>
+
+<form asp-action="Register" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-2">
+        <input asp-for="Username" class="form-control" placeholder="Ім'я користувача" />
+        <span asp-validation-for="Username" class="text-danger"></span>
+    </div>
+
+    <div class="mb-2">
+        <input asp-for="Email" class="form-control" placeholder="Email" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-2">
+        <div class="input-group">
+            <input asp-for="Password" type="password" class="form-control" placeholder="Пароль" id="Password" />
+            <span class="input-group-text" onclick="togglePassword('Password')" style="cursor:pointer">👁</span>
+        </div>
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <div class="input-group">
+            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Повторіть пароль" id="ConfirmPassword" />
+            <span class="input-group-text" onclick="togglePassword('ConfirmPassword')" style="cursor:pointer">👁</span>
+        </div>
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+    </div>
+
+    <button class="btn btn-success w-100">Зареєструватись</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePassword(id) {
+            const input = document.getElementById(id);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+    </script>
+}

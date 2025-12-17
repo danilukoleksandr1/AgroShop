@@ -56,6 +56,14 @@
                             <h5 class="card-title">@p.Name</h5>
                             <p class="text-muted">@p.Category?.Name</p>
                             <p><b>@p.Price грн</b></p>
+                            @if (p.Stock > 0)
+                            {
+                                <span class="badge bg-success">В наявності</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Немає в наявності</span>
+                            }
 
                             <a href="/Products/Details/@p.ProductID" class="btn btn-primary w-100">
                                 Переглянути

@@ -1,0 +1,32 @@
+﻿@model AgroShop.Web.ViewModels.LoginViewModel
+
+<h2>Вхід</h2>
+
+<form asp-action="Login" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-2">
+        <input asp-for="Email" class="form-control" placeholder="Email" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <div class="input-group">
+            <input asp-for="Password" type="password" class="form-control" placeholder="Пароль" id="PasswordLogin" />
+            <span class="input-group-text" onclick="togglePassword('PasswordLogin')" style="cursor:pointer">👁</span>
+        </div>
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <button class="btn btn-primary w-100">Увійти</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePassword(id) {
+            const input = document.getElementById(id);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+    </script>
+}

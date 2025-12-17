@@ -1,5 +1,6 @@
 ﻿using AgroShop.Web.Data;
 using AgroShop.Web.Models;
+using AgroShop.Web.Services;
 using AgroShop.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,24 +8,23 @@ using System.Text.Json;
 
 namespace AgroShop.Web.Controllers
 {
-    public class CartController : Controller
+    public class CartController : BaseController
     {
         private readonly AgroShopContext _context;
 
-        public CartController(AgroShopContext context)
+        public CartController(AgroShopContext context, CartService cartService)
+            : base(cartService)
         {
             _context = context;
         }
 
-        // ============================
-        // SESSION: КОШИК
-        // ============================
+        // ================== CART SESSION ==================
         private List<CartItem> GetCart()
         {
             var json = HttpContext.Session.GetString("Cart");
             return json == null
                 ? new List<CartItem>()
-                : JsonSerializer.Deserialize<List<CartItem>>(json);
+                : JsonSerializer.Deserialize<List<CartItem>>(json)!;
         }
 
         private void SaveCart(List<CartItem> cart)
@@ -33,14 +33,15 @@ namespace AgroShop.Web.Controllers
                 JsonSerializer.Serialize(cart));
         }
 
-        // ============================
-        // ДОДАТИ В КОШИК
-        // ============================
+        // ================== ADD ==================
         public async Task<IActionResult> Add(int id)
         {
             var product = await _context.Products.FindAsync(id);
-            if (product == null)
-                return NotFound();
+            if (product == null) return NotFound();
+
+            // ❌ якщо немає в наявності
+            if (product.Stock <= 0)
+                return RedirectToAction("Details", "Products", new { id });
 
             var cart = GetCart();
             var item = cart.FirstOrDefault(x => x.ProductID == id);
@@ -58,42 +59,64 @@ namespace AgroShop.Web.Controllers
             }
             else
             {
-                item.Quantity++;
+                // ❌ не більше ніж є на складі
+                if (item.Quantity < product.Stock)
+                    item.Quantity++;
             }
 
             SaveCart(cart);
             return RedirectToAction("Index");
         }
 
-        // ============================
-        // ПЕРЕГЛЯД КОШИКА
-        // ============================
+        // ================== VIEW CART ==================
         public IActionResult Index()
         {
-            return View(GetCart());
+            var cart = GetCart();
+
+            foreach (var item in cart)
+            {
+                var product = _context.Products
+                    .FirstOrDefault(p => p.ProductID == item.ProductID);
+
+                item.AvailableStock = product?.Stock ?? 0;
+            }
+
+            return View(cart);
         }
 
-        // ============================
-        // ОНОВЛЕННЯ КІЛЬКОСТІ
-        // ============================
+
+        // ================== UPDATE ==================
         [HttpPost]
         public IActionResult Update(int id, int qty)
         {
             var cart = GetCart();
             var item = cart.FirstOrDefault(x => x.ProductID == id);
+            if (item == null) return RedirectToAction("Index");
 
-            if (item != null && qty > 0)
+            var product = _context.Products.FirstOrDefault(p => p.ProductID == id);
+            if (product == null) return RedirectToAction("Index");
+
+            if (qty > product.Stock)
             {
-                item.Quantity = qty;
-                SaveCart(cart);
+                TempData["Error"] = $"В наявності лише {product.Stock} шт.";
+                qty = product.Stock;
             }
 
+            if (qty <= 0)
+            {
+                cart.Remove(item);
+            }
+            else
+            {
+                item.Quantity = qty;
+            }
+
+            SaveCart(cart);
             return RedirectToAction("Index");
         }
 
-        // ============================
-        // ВИДАЛЕННЯ
-        // ============================
+
+        // ================== REMOVE ==================
         public IActionResult Remove(int id)
         {
             var cart = GetCart();
@@ -108,72 +131,100 @@ namespace AgroShop.Web.Controllers
             return RedirectToAction("Index");
         }
 
-        // ============================
-        // CHECKOUT (GET)
-        // ============================
-        public async Task<IActionResult> Checkout()
+        // ================== CHECKOUT GET ==================
+        public IActionResult Checkout()
         {
             var vm = new CheckoutViewModel
             {
-                PaymentMethods = await _context.PaymentMethods.ToListAsync(),
-                ShippingMethods = await _context.ShippingMethods.ToListAsync()
+                PaymentMethods = _context.PaymentMethods.ToList(),
+                ShippingMethods = _context.ShippingMethods.ToList()
             };
 
             return View(vm);
         }
 
-        // ============================
-        // CHECKOUT (POST)
-        // ============================
+        // ================== CHECKOUT POST ==================
         [HttpPost]
         public async Task<IActionResult> Checkout(CheckoutViewModel vm)
         {
             if (!ModelState.IsValid)
+            {
+                vm.PaymentMethods = await _context.PaymentMethods.ToListAsync();
+                vm.ShippingMethods = await _context.ShippingMethods.ToListAsync();
                 return View(vm);
+            }
 
             var cart = GetCart();
             if (!cart.Any())
                 return RedirectToAction("Index");
 
-            // 1️⃣ СТВОРЮЄМО АДРЕСУ
-            var address = new Address
+            // 🔒 перевірка складу перед оформленням
+            foreach (var item in cart)
             {
-                UserID = 1, // тимчасово (без авторизації)
-                City = vm.City,
-                Street = vm.Street,
-                House = vm.House,
-                Apartment = vm.Apartment
-            };
+                var product = await _context.Products.FindAsync(item.ProductID);
+                if (product == null || product.Stock < item.Quantity)
+                {
+                    ModelState.AddModelError("", $"Недостатньо товару: {item.Name}");
+                    vm.PaymentMethods = await _context.PaymentMethods.ToListAsync();
+                    vm.ShippingMethods = await _context.ShippingMethods.ToListAsync();
+                    return View(vm);
+                }
+            }
 
-            _context.Addresses.Add(address);
-            await _context.SaveChangesAsync();
+            decimal total = cart.Sum(x => x.UnitPrice * x.Quantity);
 
-            // 2️⃣ СТВОРЮЄМО ЗАМОВЛЕННЯ
+            int? userId = null;
+
+            if (User.Identity!.IsAuthenticated)
+            {
+                userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+            }
+
             var order = new Order
             {
-                UserID = 1,
+                UserID = userId,
                 StatusID = 1,
-                AddressID = address.AddressID,
-                PaymentMethodID = vm.PaymentMethodID,
-                ShippingMethodID = vm.ShippingMethodID,
-
-                DeliveryLastName = vm.LastName,
-                DeliveryFirstName = vm.FirstName,
-                DeliveryMiddleName = vm.MiddleName,
-
-                Phone = vm.Phone,
-                Email = vm.Email,
-
                 OrderDate = DateTime.Now,
-                TotalAmount = cart.Sum(x => x.UnitPrice * x.Quantity)
+                TotalAmount = total
             };
 
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            // 3️⃣ (за бажанням) OrderDetails
+            _context.OrderContacts.Add(new OrderContact
+            {
+                OrderID = order.OrderID,
+                FirstName = vm.FirstName,
+                LastName = vm.LastName,
+                MiddleName = vm.MiddleName,
+                Phone = vm.Phone,
+                Email = vm.Email
+            });
+
+            _context.OrderAddresses.Add(new OrderAddress
+            {
+                OrderID = order.OrderID,
+                City = vm.City,
+                Street = vm.Street,
+                House = vm.House,
+                Apartment = vm.Apartment
+            });
+
+            _context.OrderShipping.Add(new OrderShipping
+            {
+                OrderID = order.OrderID,
+                ShippingMethodID = vm.ShippingMethodID,
+                ShippingDetails = vm.ShippingDetails,
+                Cost = 0
+            });
+
+            // 📦 деталі + ⬇️ мінус зі складу
             foreach (var item in cart)
             {
+                var product = await _context.Products.FindAsync(item.ProductID);
+
+                product!.Stock -= item.Quantity;
+
                 _context.OrderDetails.Add(new OrderDetail
                 {
                     OrderID = order.OrderID,
@@ -185,13 +236,26 @@ namespace AgroShop.Web.Controllers
 
             await _context.SaveChangesAsync();
 
+            // 💳 платіж
+            var payment = new OrderPayment
+            {
+                OrderID = order.OrderID,
+                PaymentMethodID = vm.PaymentMethodID,
+                Amount = total,
+                Status = vm.PaymentMethodID == 2 ? "Pending" : "Paid",
+                PayDate = vm.PaymentMethodID == 2 ? null : DateTime.Now
+            };
+            _context.OrderPayments.Add(payment);
+            await _context.SaveChangesAsync();
+
             HttpContext.Session.Remove("Cart");
+
+            if (vm.PaymentMethodID == 2)
+                return RedirectToAction("Pay", "Payment", new { paymentId = payment.OrderPaymentID });
+
             return RedirectToAction("Success");
         }
 
-        // ============================
-        // УСПІШНО
-        // ============================
         public IActionResult Success()
         {
             return View();

@@ -1,0 +1,26 @@
+﻿@model AgroShop.Web.Models.OrderPayment
+
+@{
+    ViewData["Title"] = "Онлайн оплата";
+}
+
+<h2>Онлайн оплата замовлення №@Model.OrderID</h2>
+
+<p><strong>Сума:</strong> @Model.Amount грн</p>
+<p><strong>Статус:</strong> @Model.Status</p>
+
+@if (Model.Status != "Оплачено")
+{
+    <form asp-action="Confirm" method="post">
+        <input type="hidden" name="paymentId" value="@Model.OrderPaymentID" />
+        <button type="submit" class="btn btn-success btn-lg">
+            Оплатити зараз
+        </button>
+    </form>
+}
+else
+{
+    <div class="alert alert-success mt-3">
+        Платіж успішно виконано ✅
+    </div>
+}

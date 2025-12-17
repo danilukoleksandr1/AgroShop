@@ -1,32 +1,71 @@
 ﻿using AgroShop.Web.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
 
 namespace AgroShop.Web.Data
 {
     public class AgroShopContext : DbContext
     {
-        public AgroShopContext(DbContextOptions<AgroShopContext> options) : base(options) { }
+        public AgroShopContext(DbContextOptions<AgroShopContext> options)
+            : base(options) { }
 
-        public DbSet<Role> Roles { get; set; }
-        public DbSet<User> Users { get; set; }
-        public DbSet<Address> Addresses { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<Product> Products { get; set; }
-        public DbSet<Review> Reviews { get; set; }
-        public DbSet<OrderStatus> OrderStatuses { get; set; }
-        public DbSet<PaymentMethod> PaymentMethods { get; set; }
-        public DbSet<ShippingMethod> ShippingMethods { get; set; }
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<OrderDetail> OrderDetails { get; set; }
-        public DbSet<Payment> Payments { get; set; }
+        // ===== ОСНОВНІ =====
+        public DbSet<Role> Roles => Set<Role>();
+        public DbSet<User> Users => Set<User>();
+        public DbSet<Category> Categories => Set<Category>();
+        public DbSet<Product> Products => Set<Product>();
+        public DbSet<Review> Reviews => Set<Review>();
+
+        public DbSet<OrderStatus> OrderStatuses => Set<OrderStatus>();
+        public DbSet<PaymentMethod> PaymentMethods => Set<PaymentMethod>();
+        public DbSet<ShippingMethod> ShippingMethods => Set<ShippingMethod>();
+
+        // ===== ЗАМОВЛЕННЯ =====
+        public DbSet<Order> Orders => Set<Order>();
+        public DbSet<OrderContact> OrderContacts => Set<OrderContact>();
+        public DbSet<OrderAddress> OrderAddresses => Set<OrderAddress>();
+        public DbSet<OrderShipping> OrderShipping => Set<OrderShipping>();
+        public DbSet<OrderPayment> OrderPayments => Set<OrderPayment>();
+        public DbSet<OrderDetail> OrderDetails => Set<OrderDetail>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Optionally configure keys, defaults, and relationships explicitly if needed
-            // Example: modelBuilder.Entity<Product>().Property(p => p.Price).HasColumnType("decimal(10,2)");
+            // ===== STATUS =====
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Status)
+                .WithMany()
+                .HasForeignKey(o => o.StatusID);
+
+            // ===== 1 : 1 =====
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Contact)
+                .WithOne(c => c.Order)
+                .HasForeignKey<OrderContact>(c => c.OrderID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Address)
+                .WithOne(a => a.Order)
+                .HasForeignKey<OrderAddress>(a => a.OrderID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Shipping)
+                .WithOne(s => s.Order)
+                .HasForeignKey<OrderShipping>(s => s.OrderID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ===== 1 : M =====
+            modelBuilder.Entity<Order>()
+                .HasMany(o => o.Details)
+                .WithOne(d => d.Order)
+                .HasForeignKey(d => d.OrderID);
+
+            modelBuilder.Entity<Order>()
+                .HasMany(o => o.Payments)
+                .WithOne(p => p.Order)
+                .HasForeignKey(p => p.OrderID);
         }
     }
 }

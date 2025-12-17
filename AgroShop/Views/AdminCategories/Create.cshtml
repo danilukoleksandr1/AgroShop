@@ -1,0 +1,18 @@
+﻿@model AgroShop.Web.Models.Category
+
+<h2>Додати категорію</h2>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-2">
+        <label>Назва категорії</label>
+        <input asp-for="Name" class="form-control" />
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <span class="text-danger">@ViewBag.ErrorMessage</span>
+        }
+    </div>
+
+    <button class="btn btn-success mt-3">Зберегти</button>
+</form>

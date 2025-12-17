@@ -1,0 +1,36 @@
+﻿@model IEnumerable<AgroShop.Web.Models.Product>
+
+<h2>Керування товарами</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">Додати товар</a>
+</p>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Назва</th>
+            <th>Ціна</th>
+            <th>Кількість</th>
+            <th>Категорія</th>
+            <th>Дії</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr class="@(item.IsActive ? "" : "table-secondary")">
+                <td>@item.Name</td>
+                <td>@item.Price</td>
+                <td>@item.Stock</td>
+                <td>@item.Category?.Name</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ProductID" class="btn btn-primary btn-sm">Редагувати</a>
+                    <a asp-action="ToggleActive" asp-route-id="@item.ProductID" class="btn btn-warning btn-sm">
+                        @(item.IsActive ? "Сховати" : "Показати")
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

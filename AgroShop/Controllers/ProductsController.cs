@@ -1,29 +1,39 @@
 ﻿using AgroShop.Web.Data;
 using AgroShop.Web.Models;
 using AgroShop.Web.Models.ViewModels;
+using AgroShop.Web.Services;
+using AgroShop.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace AgroShop.Web.Controllers
 {
-    public class ProductsController : Controller
+    public class ProductsController : BaseController
     {
         private readonly AgroShopContext _context;
 
-        public ProductsController(AgroShopContext context)
+        public ProductsController(AgroShopContext context, CartService cartService)
+            : base(cartService)
         {
             _context = context;
         }
+
 
         // ------------------ CATALOG ------------------
         public async Task<IActionResult> Index(string? search, int? categoryId, decimal? minPrice, decimal? maxPrice)
         {
             var vm = new ProductFilterViewModel
             {
-                Categories = await _context.Categories.ToListAsync()
+                Categories = await _context.Categories.Where(c => c.IsActive).ToListAsync()
             };
 
-            IQueryable<Product> query = _context.Products.Include(p => p.Category);
+
+            // Показуємо лише активні товари та категорії
+            IQueryable<Product> query = _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.IsActive && (p.Category == null || p.Category.IsActive));
+
 
             // SEARCH
             if (!string.IsNullOrEmpty(search))
@@ -72,6 +82,32 @@ namespace AgroShop.Web.Controllers
                 return NotFound();
 
             return View(product);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddReview(AddReviewViewModel vm)
+        {
+            if (!User.Identity!.IsAuthenticated)
+                return RedirectToAction("Login", "Account");
+
+            if (!ModelState.IsValid)
+                return RedirectToAction("Details", new { id = vm.ProductID });
+
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var review = new Review
+            {
+                ProductID = vm.ProductID,
+                UserID = userId,
+                Rating = vm.Rating,
+                Comment = vm.Comment,
+                CreatedAt = DateTime.Now
+            };
+
+            _context.Reviews.Add(review);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", new { id = vm.ProductID });
         }
     }
 }

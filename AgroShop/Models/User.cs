@@ -13,7 +13,7 @@ namespace AgroShop.Web.Models
         public int? RoleID { get; set; }
         public Role? Role { get; set; }
 
-        public ICollection<Address>? Addresses { get; set; }
+       
         public ICollection<Review>? Reviews { get; set; }
         public ICollection<Order>? Orders { get; set; }
     }

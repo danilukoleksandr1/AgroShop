@@ -3,46 +3,79 @@
 <h2>Оформлення замовлення</h2>
 
 <form asp-action="Checkout" method="post">
-
     <h4>Отримувач</h4>
-    <input asp-for="LastName" class="form-control mb-2" placeholder="Прізвище" />
-    <input asp-for="FirstName" class="form-control mb-2" placeholder="Ім'я" />
-    <input asp-for="MiddleName" class="form-control mb-2" placeholder="По батькові" />
+    <div class="mb-2">
+        <input asp-for="LastName" class="form-control" placeholder="Прізвище" />
+        <span asp-validation-for="LastName" class="text-danger"></span>
+    </div>
+    <div class="mb-2">
+        <input asp-for="FirstName" class="form-control" placeholder="Ім’я" />
+        <span asp-validation-for="FirstName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <input asp-for="MiddleName" class="form-control" placeholder="По батькові" />
+        <span asp-validation-for="MiddleName" class="text-danger"></span>
+    </div>
 
     <h4>Контакти</h4>
-    <input asp-for="Phone" class="form-control mb-2" placeholder="Телефон" />
-    <input asp-for="Email" class="form-control mb-2" placeholder="Email" />
+    <div class="mb-2">
+        <input asp-for="Phone" class="form-control" placeholder="Телефон" />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <input asp-for="Email" class="form-control" placeholder="Email" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
 
-    <h4>Адреса доставки</h4>
-    <select asp-for="AddressID" class="form-select mb-3">
-        @foreach (var a in Model.Addresses)
-        {
-            <option value="@a.AddressID">
-                @a.City, @a.Street @a.House
-            </option>
-        }
-    </select>
-
-    <h4>Спосіб оплати</h4>
-    <select asp-for="PaymentMethodID" class="form-select mb-3">
-        @foreach (var p in Model.PaymentMethods)
-        {
-            <option value="@p.PaymentMethodID">@p.Name</option>
-        }
-    </select>
+    <h4>Адреса</h4>
+    <div class="mb-2">
+        <input asp-for="City" class="form-control" placeholder="Місто" />
+        <span asp-validation-for="City" class="text-danger"></span>
+    </div>
+    <div class="mb-2">
+        <input asp-for="Street" class="form-control" placeholder="Вулиця" />
+        <span asp-validation-for="Street" class="text-danger"></span>
+    </div>
+    <div class="mb-2">
+        <input asp-for="House" class="form-control" placeholder="Будинок" />
+        <span asp-validation-for="House" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <input asp-for="Apartment" class="form-control" placeholder="Квартира" />
+        <span asp-validation-for="Apartment" class="text-danger"></span>
+    </div>
 
     <h4>Доставка</h4>
-    <select asp-for="ShippingMethodID" class="form-select mb-3">
-        @foreach (var s in Model.ShippingMethods)
-        {
-            <option value="@s.ShippingMethodID">
-                @s.Name (+@s.Cost грн)
-            </option>
-        }
-    </select>
+    <div class="mb-3">
+        <select asp-for="ShippingMethodID" class="form-control">
+            <option value="0">-- Оберіть --</option>
+            @foreach (var s in Model.ShippingMethods)
+            {
+                <option value="@s.ShippingMethodID">@s.Name (@s.Cost грн)</option>
+            }
+        </select>
+        <span asp-validation-for="ShippingMethodID" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <input asp-for="ShippingDetails" class="form-control" placeholder="Відділення / поштомат / індикс" />
+        <span asp-validation-for="ShippingDetails" class="text-danger"></span>
+    </div>
 
-    <button type="submit" class="btn btn-success">
-        Підтвердити замовлення
-    </button>
+    <h4>Оплата</h4>
+    <div class="mb-3">
+        <select asp-for="PaymentMethodID" class="form-control">
+            <option value="0">-- Оберіть --</option>
+            @foreach (var p in Model.PaymentMethods)
+            {
+                <option value="@p.PaymentMethodID">@p.Name</option>
+            }
+        </select>
+        <span asp-validation-for="PaymentMethodID" class="text-danger"></span>
+    </div>
 
+    <button class="btn btn-success btn-lg">Підтвердити</button>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

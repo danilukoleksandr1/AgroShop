@@ -1,4 +1,10 @@
 ﻿@model List<AgroShop.Web.Models.CartItem>
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["Error"]
+    </div>
+}
 
 <h2>Кошик</h2>
 
@@ -30,7 +36,16 @@ else
                     <td>
                         <form method="post" action="/Cart/Update">
                             <input type="hidden" name="id" value="@item.ProductID" />
-                            <input type="number" name="qty" value="@item.Quantity" min="1" class="form-control" style="width:80px" />
+                            <input type="number"
+                                   name="qty"
+                                   value="@item.Quantity"
+                                   min="1"
+                                   max="@item.AvailableStock"
+                                   class="form-control qty-input"
+                                   data-stock="@item.AvailableStock"
+                                   style="width:80px" />
+
+
                             <button class="btn btn-sm btn-primary mt-1">Оновити</button>
                         </form>
                     </td>
@@ -49,3 +64,14 @@ else
 
     <a href="/Cart/Checkout" class="btn btn-success btn-lg mt-3">Оформити замовлення</a>
 }
+<script>
+    document.querySelectorAll(".qty-input").forEach(input => {
+        input.addEventListener("input", function () {
+            const stock = parseInt(this.dataset.stock);
+            if (this.value > stock) {
+                alert("В наявності лише " + stock + " шт.");
+                this.value = stock;
+            }
+        });
+    });
+</script>

@@ -1,0 +1,50 @@
+﻿@model IEnumerable<AgroShop.Web.Models.Order>
+@using AgroShop.Web.Models
+
+<h2>Керування замовленнями</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Користувач</th>
+            <th>Дата</th>
+            <th>Сума</th>
+            <th>Статус</th>
+            <th>Дія</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.OrderID</td>
+                <td>@order.User?.Email</td>
+                <td>@order.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
+                <td>@order.TotalAmount</td>
+                <td>
+                    <form asp-action="ChangeStatus" method="post" class="d-flex gap-2">
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden" name="orderId" value="@order.OrderID" />
+
+                        <select name="statusId" class="form-select form-select-sm">
+                            @foreach (OrderStatus status in ViewBag.Statuses)
+                            {
+                                <option value="@status.StatusID"
+                                        selected="@(status.StatusID == order.StatusID)">
+                                    @status.StatusName
+                                </option>
+                            }
+                        </select>
+
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            Зберегти
+                        </button>
+                    </form>
+                </td>
+                <td></td>
+            </tr>
+        }
+    </tbody>
+</table>

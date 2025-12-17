@@ -15,11 +15,25 @@
 
         <h3>@Model.Price грн</h3>
 
-        <form method="post" action="/Cart/Add/@Model.ProductID">
-            <button type="submit" class="btn btn-success btn-lg mt-3">
-                Додати в кошик
+        @if (Model.Stock > 0)
+        {
+            <form method="post" action="/Cart/Add/@Model.ProductID">
+                <button class="btn btn-success btn-lg mt-3">
+                    Додати в кошик
+                </button>
+            </form>
+
+            <p class="text-success mt-2">
+                В наявності: @Model.Stock шт.
+            </p>
+        }
+        else
+        {
+            <button class="btn btn-secondary btn-lg mt-3" disabled>
+                Немає в наявності
             </button>
-        </form>
+        }
+
 
         <hr />
 
@@ -48,4 +62,41 @@
 else
 {
     <p>Відгуків поки що немає.</p>
+}
+@if (User.Identity != null && User.Identity.IsAuthenticated)
+{
+    <hr />
+    <h4>Залишити відгук</h4>
+
+    <form asp-action="AddReview" method="post">
+        <input type="hidden" name="ProductID" value="@Model.ProductID" />
+
+        <div class="mb-2">
+            <label>Оцінка (1–5)</label>
+            <select name="Rating" class="form-control">
+                <option value="5">5 ★★★★★</option>
+                <option value="4">4 ★★★★</option>
+                <option value="3">3 ★★★</option>
+                <option value="2">2 ★★</option>
+                <option value="1">1 ★</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <textarea name="Comment"
+                  class="form-control"
+                  rows="3"
+                  placeholder="Ваш відгук"></textarea>
+        </div>
+
+        <button class="btn btn-success">
+            Надіслати
+        </button>
+    </form>
+}
+else
+{
+    <p class="text-muted">
+        Щоб залишити відгук, <a asp-controller="Account" asp-action="Login">увійдіть</a>
+    </p>
 }
