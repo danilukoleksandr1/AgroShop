@@ -16,19 +16,19 @@ namespace AgroShop.Web.Controllers
             _context = context;
         }
 
-        // ===== Список категорій =====
+        // Список категорій
         public async Task<IActionResult> Index()
         {
             return View(await _context.Categories.ToListAsync());
         }
 
-        // ===== Додати категорію (форма) =====
+        // Додати категорію (форма) 
         public IActionResult Create()
         {
             return View();
         }
 
-        // ===== Додати категорію (збереження) =====
+        // Додати категорію (збереження)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Category category)
@@ -52,7 +52,7 @@ namespace AgroShop.Web.Controllers
             return RedirectToAction("Index");
         }
 
-        // ===== Видалити категорію =====
+        // Видалити категорію 
         public async Task<IActionResult> Delete(int id)
         {
             var category = await _context.Categories
@@ -72,7 +72,7 @@ namespace AgroShop.Web.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
-        // ===== Сховати/Показати категорію =====
+        // Сховати/Показати категорію
         public async Task<IActionResult> ToggleActive(int id)
         {
             var category = await _context.Categories.FindAsync(id);

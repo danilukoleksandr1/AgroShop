@@ -6,7 +6,7 @@ namespace AgroShop.Web.ViewModels
 {
     public class CheckoutViewModel
     {
-        // ===== ПІБ =====
+        //  ПІБ 
         [Required(ErrorMessage = "Введіть ім’я")]
         public string FirstName { get; set; } = null!;
 
@@ -15,7 +15,7 @@ namespace AgroShop.Web.ViewModels
 
         public string? MiddleName { get; set; }
 
-        // ===== КОНТАКТИ =====
+        // КОНТАКТИ
         [Required(ErrorMessage = "Введіть номер телефону")]
         public string Phone { get; set; } = null!;
 
@@ -23,7 +23,7 @@ namespace AgroShop.Web.ViewModels
         [EmailAddress(ErrorMessage = "Невірний формат електронної пошти")]
         public string Email { get; set; } = null!;
 
-        // ===== АДРЕСА =====
+        // АДРЕСА 
         [Required(ErrorMessage = "Вкажіть місто")]
         public string City { get; set; } = null!;
 
@@ -35,18 +35,18 @@ namespace AgroShop.Web.ViewModels
 
         public string? Apartment { get; set; }
 
-        // ===== ДОСТАВКА =====
+        // ДОСТАВКА 
         [Range(1, int.MaxValue, ErrorMessage = "Оберіть спосіб доставки")]
         public int ShippingMethodID { get; set; }
 
         [Required(ErrorMessage = "Вкажіть деталі доставки")]
         public string ShippingDetails { get; set; } = null!;
 
-        // ===== ОПЛАТА =====
+        // ОПЛАТА
         [Range(1, int.MaxValue, ErrorMessage = "Оберіть спосіб оплати")]
         public int PaymentMethodID { get; set; }
 
-        // ===== SELECT =====
+        // SELECT
         [ValidateNever]
         public List<PaymentMethod> PaymentMethods { get; set; } = new();
 

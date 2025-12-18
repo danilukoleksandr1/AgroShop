@@ -8,7 +8,7 @@ namespace AgroShop.Web.Data
         public AgroShopContext(DbContextOptions<AgroShopContext> options)
             : base(options) { }
 
-        // ===== ОСНОВНІ =====
+       
         public DbSet<Role> Roles => Set<Role>();
         public DbSet<User> Users => Set<User>();
         public DbSet<Category> Categories => Set<Category>();
@@ -19,7 +19,7 @@ namespace AgroShop.Web.Data
         public DbSet<PaymentMethod> PaymentMethods => Set<PaymentMethod>();
         public DbSet<ShippingMethod> ShippingMethods => Set<ShippingMethod>();
 
-        // ===== ЗАМОВЛЕННЯ =====
+        
         public DbSet<Order> Orders => Set<Order>();
         public DbSet<OrderContact> OrderContacts => Set<OrderContact>();
         public DbSet<OrderAddress> OrderAddresses => Set<OrderAddress>();
@@ -31,13 +31,13 @@ namespace AgroShop.Web.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // ===== STATUS =====
+           
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.Status)
                 .WithMany()
                 .HasForeignKey(o => o.StatusID);
 
-            // ===== 1 : 1 =====
+            
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.Contact)
                 .WithOne(c => c.Order)
@@ -56,7 +56,7 @@ namespace AgroShop.Web.Data
                 .HasForeignKey<OrderShipping>(s => s.OrderID)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // ===== 1 : M =====
+           
             modelBuilder.Entity<Order>()
                 .HasMany(o => o.Details)
                 .WithOne(d => d.Order)

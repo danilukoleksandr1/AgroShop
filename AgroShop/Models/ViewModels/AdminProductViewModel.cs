@@ -9,7 +9,7 @@ namespace AgroShop.Web.ViewModels
 
         public List<SelectListItem> Categories { get; set; } = new();
 
-        // для створення нової категорії
+        
         public string? NewCategoryName { get; set; }
         public string? NewCategoryDescription { get; set; }
     }

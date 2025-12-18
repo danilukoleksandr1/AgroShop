@@ -15,7 +15,7 @@ namespace AgroShop.Web.Controllers
             _context = context;
         }
 
-        // ===== LIST =====
+        // список замовлень
         public async Task<IActionResult> Index()
         {
             ViewBag.Statuses = await _context.OrderStatuses.ToListAsync();
@@ -28,7 +28,7 @@ namespace AgroShop.Web.Controllers
             return View(orders);
         }
 
-        // ===== CHANGE STATUS (POST) =====
+        // зміна статусу (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangeStatus(int orderId, int statusId)

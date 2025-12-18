@@ -18,7 +18,7 @@ namespace AgroShop.Web.Controllers
             _context = context;
         }
 
-        // ================== CART SESSION ==================
+        //  CART SESSION 
         private List<CartItem> GetCart()
         {
             var json = HttpContext.Session.GetString("Cart");
@@ -33,13 +33,13 @@ namespace AgroShop.Web.Controllers
                 JsonSerializer.Serialize(cart));
         }
 
-        // ================== ADD ==================
+        //ADD додоти в кошик
         public async Task<IActionResult> Add(int id)
         {
             var product = await _context.Products.FindAsync(id);
             if (product == null) return NotFound();
 
-            // ❌ якщо немає в наявності
+            //  якщо немає в наявності
             if (product.Stock <= 0)
                 return RedirectToAction("Details", "Products", new { id });
 
@@ -59,7 +59,7 @@ namespace AgroShop.Web.Controllers
             }
             else
             {
-                // ❌ не більше ніж є на складі
+                //  не більше ніж є на складі
                 if (item.Quantity < product.Stock)
                     item.Quantity++;
             }
@@ -68,7 +68,7 @@ namespace AgroShop.Web.Controllers
             return RedirectToAction("Index");
         }
 
-        // ================== VIEW CART ==================
+        // перегляд кошика
         public IActionResult Index()
         {
             var cart = GetCart();
@@ -85,7 +85,7 @@ namespace AgroShop.Web.Controllers
         }
 
 
-        // ================== UPDATE ==================
+        // зміна кількості товару в кошику
         [HttpPost]
         public IActionResult Update(int id, int qty)
         {
@@ -116,7 +116,7 @@ namespace AgroShop.Web.Controllers
         }
 
 
-        // ================== REMOVE ==================
+        // видалити товар з кошика
         public IActionResult Remove(int id)
         {
             var cart = GetCart();
@@ -131,7 +131,7 @@ namespace AgroShop.Web.Controllers
             return RedirectToAction("Index");
         }
 
-        // ================== CHECKOUT GET ==================
+        // CHECKOUT GET 
         public IActionResult Checkout()
         {
             var vm = new CheckoutViewModel
@@ -143,7 +143,7 @@ namespace AgroShop.Web.Controllers
             return View(vm);
         }
 
-        // ================== CHECKOUT POST ==================
+        //  CHECKOUT POST оформлення замовлення
         [HttpPost]
         public async Task<IActionResult> Checkout(CheckoutViewModel vm)
         {
@@ -158,7 +158,7 @@ namespace AgroShop.Web.Controllers
             if (!cart.Any())
                 return RedirectToAction("Index");
 
-            // 🔒 перевірка складу перед оформленням
+            // перевірка складу перед оформленням
             foreach (var item in cart)
             {
                 var product = await _context.Products.FindAsync(item.ProductID);
@@ -218,7 +218,7 @@ namespace AgroShop.Web.Controllers
                 Cost = 0
             });
 
-            // 📦 деталі + ⬇️ мінус зі складу
+            //  деталі +  мінус зі складу
             foreach (var item in cart)
             {
                 var product = await _context.Products.FindAsync(item.ProductID);
@@ -236,7 +236,7 @@ namespace AgroShop.Web.Controllers
 
             await _context.SaveChangesAsync();
 
-            // 💳 платіж
+            // платіж
             var payment = new OrderPayment
             {
                 OrderID = order.OrderID,

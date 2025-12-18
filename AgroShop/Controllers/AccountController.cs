@@ -19,7 +19,7 @@ namespace AgroShop.Web.Controllers
             _context = context;
         }
 
-        // ================= REGISTER =================
+        // Реєстрація
         public IActionResult Register()
         {
             return View();
@@ -59,7 +59,7 @@ namespace AgroShop.Web.Controllers
             return RedirectToAction("Profile");
         }
 
-        // ================= LOGIN =================
+        // Вхід
         public IActionResult Login()
         {
             return View();
@@ -90,7 +90,7 @@ namespace AgroShop.Web.Controllers
             return RedirectToAction("Profile");
         }
 
-        // ================= PROFILE =================
+        // Кабінет
         public async Task<IActionResult> Profile()
         {
             if (!User.Identity!.IsAuthenticated)
@@ -115,14 +115,14 @@ namespace AgroShop.Web.Controllers
         }
 
 
-        // ================= LOGOUT =================
+        // LOGOUT
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync("CookieAuth");
             return RedirectToAction("Login");
         }
 
-        // ================= HELPERS =================
+        // HELPERS
         private async Task SignIn(User user)
         {
             var claims = new List<Claim>

@@ -12,7 +12,7 @@
         public string? Manufacturer { get; set; }
         public string? ImageUrl { get; set; }
 
-        public bool IsActive { get; set; } = true; // додати після ImageUrl
+        public bool IsActive { get; set; } = true; 
 
         public ICollection<Review>? Reviews { get; set; }
         public ICollection<OrderDetail>? OrderDetails { get; set; }

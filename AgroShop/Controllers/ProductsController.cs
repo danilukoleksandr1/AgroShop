@@ -20,7 +20,7 @@ namespace AgroShop.Web.Controllers
         }
 
 
-        // ------------------ CATALOG ------------------
+        // каталог
         public async Task<IActionResult> Index(string? search, int? categoryId, decimal? minPrice, decimal? maxPrice)
         {
             var vm = new ProductFilterViewModel
@@ -35,7 +35,7 @@ namespace AgroShop.Web.Controllers
                 .Where(p => p.IsActive && (p.Category == null || p.Category.IsActive));
 
 
-            // SEARCH
+            // пошук товару
             if (!string.IsNullOrEmpty(search))
             {
                 query = query.Where(p =>
@@ -43,14 +43,14 @@ namespace AgroShop.Web.Controllers
                     p.Description.Contains(search));
             }
 
-            // CATEGORY FILTER
+            // фільтрація за категоріями
             if (categoryId.HasValue)
             {
                 query = query.Where(p => p.CategoryID == categoryId.Value);
                 vm.CategoryID = categoryId;
             }
 
-            // PRICE FILTER
+            // фільтр за ціною
             if (minPrice.HasValue)
             {
                 query = query.Where(p => p.Price >= minPrice.Value);
@@ -69,7 +69,7 @@ namespace AgroShop.Web.Controllers
             return View(vm);
         }
 
-        // ------------------ PRODUCT DETAILS ------------------
+        // сторінка товару
         public async Task<IActionResult> Details(int id)
         {
             var product = await _context.Products
@@ -83,6 +83,8 @@ namespace AgroShop.Web.Controllers
 
             return View(product);
         }
+
+        // додавання відгуків
 
         [HttpPost]
         public async Task<IActionResult> AddReview(AddReviewViewModel vm)

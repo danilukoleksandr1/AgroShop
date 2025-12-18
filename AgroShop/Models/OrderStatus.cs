@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AgroShop.Web.Models
 {
-    [Table("OrderStatus")] // 👈 ВАЖЛИВО
+    [Table("OrderStatus")] 
     public class OrderStatus
     {
         [Key]
